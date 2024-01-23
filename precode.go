@@ -62,17 +62,17 @@ func postTask(w http.ResponseWriter, r *http.Request) {
 
 	_, err := buf.ReadFrom(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	if err = json.Unmarshal(buf.Bytes(), &task); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	tasks[task.ID] = task
 
-	w.Header().Set("Content-type", "application/json")
+	w.Header().Set("Content-type", "application-json")
 	w.WriteHeader(http.StatusCreated)
 
 }
@@ -82,13 +82,13 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	task, ok := tasks[id]
 	if !ok {
-		http.Error(w, "Ошибка при декодировании JSON", http.StatusBadRequest)
+		http.Error(w, "Ошибка при сериализации", http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(task)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	w.Header().Set("Content-type", "application-json")
@@ -100,7 +100,7 @@ func getTask(w http.ResponseWriter, r *http.Request) {
 func deleteTask(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if _, ok := tasks[id]; !ok {
-		http.Error(w, "Ошибка при декодировании JSON", http.StatusBadRequest)
+		http.Error(w, "Ошибка в запросе", http.StatusBadRequest)
 		return
 	}
 
